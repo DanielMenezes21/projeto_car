@@ -5,6 +5,9 @@ from kivymd.uix.textfield import MDTextField
 from kivymd.uix.label import MDLabel
 from kivy.uix.textinput import TextInput
 import re  
+import shapefile
+import os
+import time
 
 class TelaPrincipal(MDScreen):
     def __init__(self, **kw):
@@ -39,11 +42,67 @@ class TelaPrincipal(MDScreen):
         """
         texto = self.car_input.text
         if texto:
-            coordenadas = "Latitude: -15.7801, Longitude: -47.9292"
-            self.resultado.text = f"CAR válido!\nCoordenadas: {coordenadas}"
-            self.box.add_widget(MDIconButton(icon='download', on_release=self.on_enter))
+            coordenadas = (-15.7801, -47.9292)
+            self.resultado.text = f"CAR válido!\nCoordenadas: Latitude: {coordenadas[0]}, Longitude: {coordenadas[1]}"
+            self.box.add_widget(MDIconButton(icon='download', on_release=lambda x: self.criar_arquivos(coordenadas)))
         else:
             self.resultado.text = "Formato de CAR inválido. Insira 15 dígitos."
 
+    def criar_arquivos(self, coordenadas):
+        """
+        Cria os arquivos .shp e .kml com as coordenadas fornecidas.
+        """
+        # Cria o arquivo .shp
+        self.criar_shapefile(coordenadas)
+
+        # Cria o arquivo .kml
+        self.criar_kml(coordenadas)
+
+    def criar_shapefile(self, coordenadas):
+        """
+        Cria um shapefile com as coordenadas fictícias.
+        """
+        # Nome do arquivo .shp
+        arquivo_shp = "car_ponto.shp"
+
+        # Criação do shapefile
+        with shapefile.Writer(arquivo_shp, shapeType=shapefile.POINT) as shp:
+            shp.field("ID", "C")  # Adiciona um campo de atributo
+            shp.point(coordenadas[1], coordenadas[0])  # Adiciona o ponto (longitude, latitude)
+            shp.record("1")  # Adiciona um registro com ID "1"
+
+        # Mensagem de sucesso para o arquivo .shp
+        self.resultado.text += f"\nArquivo {arquivo_shp} criado com sucesso!"
+
+    def criar_kml(self, coordenadas):
+        """
+        Cria um arquivo .kml com as coordenadas fictícias e o abre no Google Earth Pro.
+        """
+        # Nome do arquivo .kml
+        arquivo_kml = "car_ponto.kml"
+
+        # Criação do arquivo .kml
+        with open(arquivo_kml, "w") as kml:
+            kml.write("<?xml version='1.0' encoding='UTF-8'?>\n")
+            kml.write("<kml xmlns='http://www.opengis.net/kml/2.2'>\n")
+            kml.write("  <Document>\n")
+            kml.write("    <Placemark>\n")
+            kml.write(f"      <name>CAR Ponto</name>\n")
+            kml.write("      <Point>\n")
+            kml.write(f"        <coordinates>{coordenadas[1]},{coordenadas[0]},0</coordinates>\n")
+            kml.write("      </Point>\n")
+            kml.write("    </Placemark>\n")
+            kml.write("  </Document>\n")
+            kml.write("</kml>\n")
+
+        # Mensagem de sucesso para o arquivo .kml
+        self.resultado.text += f"\nArquivo {arquivo_kml} criado com sucesso!"
+
+        # Abre o arquivo .kml no Google Earth Pro
+        try:
+            os.startfile(arquivo_kml)  # Abre o arquivo no programa associado (Google Earth Pro)
+        except Exception as e:
+            self.resultado.text += f"\nErro ao abrir o arquivo: {e}"
+            
     def on_voltar(self, *args):
         self.manager.current = 'login'
