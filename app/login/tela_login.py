@@ -2,7 +2,7 @@ import sqlite3
 from kivymd.uix.screen import MDScreen
 from kivy.uix.screenmanager import Screen
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDIconButton, MDButton, MDExtendedFabButtonIcon, MDButtonIcon
+from kivymd.uix.button import MDIconButton, MDButton, MDExtendedFabButtonIcon, MDButtonIcon, MDButtonText
 from kivymd.uix.label import MDLabel
 from kivymd.uix.dialog import MDDialogIcon
 from kivy.uix.textinput import TextInput
@@ -35,9 +35,19 @@ class TelaLogin(MDScreen):
         )
         box.add_widget(self.password_field)
 
-        fab_button = MDIconButton(
-            icon="login",
-            text="Entrar",
+        fab_button = MDButton(
+            MDButtonIcon(
+                icon="login",
+                theme_icon_color="Custom",
+                icon_color=(1, 1, 1, 1),
+            ),
+            MDButtonText(
+                text="Entrar",
+                theme_text_color="Custom",
+                text_color=(1, 1, 1, 1),
+            ),
+            theme_bg_color="Custom",
+            md_bg_color=(0,0,0, 1),
             pos_hint={"center_x": 0.1, "center_y": 0.1},
             size_hint=(0.8, 0.12),
             on_release=self.on_login

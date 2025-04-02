@@ -41,6 +41,7 @@ class TelaPrincipal(MDScreen):
         if texto:
             coordenadas = "Latitude: -15.7801, Longitude: -47.9292"
             self.resultado.text = f"CAR válido!\nCoordenadas: {coordenadas}"
+            self.box.add_widget(MDIconButton(icon='download', on_release=self.on_enter))
         else:
             self.resultado.text = "Formato de CAR inválido. Insira 15 dígitos."
 
